@@ -4,37 +4,39 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Archivio {
-    private List<ElementoCatalogo> catalogo = new ArrayList<>();
+    private final Set<ElementoCatalogo> catalogo = new HashSet<>();
 
-    // Aggiunta elemento
+    // Aggiunge un elemento al catalogo, evitando duplicati (basato su ISBN)
     public void aggiungiElemento(ElementoCatalogo elemento) throws Exception {
-        if (catalogo.stream().anyMatch(e -> e.getIsbn().equals(elemento.getIsbn()))) {
+        if (!catalogo.add(elemento)) {
             throw new Exception("Elemento con ISBN già presente: " + elemento.getIsbn());
         }
-        catalogo.add(elemento);
     }
 
-    // Ricerca per ISBN
+    // Ricerca un elemento per ISBN
     public ElementoCatalogo cercaPerIsbn(String isbn) throws Exception {
         return catalogo.stream()
-                .filter(e -> e.getIsbn().equals(isbn))
+                .filter(e -> e.getIsbn().equalsIgnoreCase(isbn))
                 .findFirst()
                 .orElseThrow(() -> new Exception("Elemento non trovato con ISBN: " + isbn));
     }
 
-    // Rimozione per ISBN
+    // Rimuove un elemento per ISBN
     public void rimuoviPerIsbn(String isbn) {
-        catalogo.removeIf(e -> e.getIsbn().equals(isbn));
+        boolean removed = catalogo.removeIf(e -> e.getIsbn().equalsIgnoreCase(isbn));
+        if (!removed) {
+            System.out.println("Nessun elemento trovato con ISBN: " + isbn);
+        }
     }
 
-    // Ricerca per anno di pubblicazione
+    // Ricerca elementi per anno di pubblicazione
     public List<ElementoCatalogo> cercaPerAnno(int anno) {
         return catalogo.stream()
                 .filter(e -> e.getAnnoPubblicazione() == anno)
                 .collect(Collectors.toList());
     }
 
-    // Ricerca per autore (solo libri)
+    // Ricerca libri per autore
     public List<Libro> cercaPerAutore(String autore) {
         return catalogo.stream()
                 .filter(e -> e instanceof Libro)
@@ -43,13 +45,13 @@ public class Archivio {
                 .collect(Collectors.toList());
     }
 
-    // Aggiornamento elemento esistente dato l'ISBN
+    // Aggiorna un elemento esistente cercandolo per ISBN
     public void aggiornaElemento(String isbn, ElementoCatalogo nuovoElemento) throws Exception {
         rimuoviPerIsbn(isbn);
         aggiungiElemento(nuovoElemento);
     }
 
-    // Statistiche del catalogo
+    // statistiche sul catalogo
     public void stampaStatistiche() {
         long totLibri = catalogo.stream().filter(e -> e instanceof Libro).count();
         long totRiviste = catalogo.stream().filter(e -> e instanceof Rivista).count();
@@ -64,12 +66,16 @@ public class Archivio {
 
         System.out.println("Totale libri: " + totLibri);
         System.out.println("Totale riviste: " + totRiviste);
-        System.out.println("Elemento con più pagine: " + (maxPagine.isPresent() ? maxPagine.get() : "Nessuno"));
-        System.out.println("Media pagine: " + mediaPagine);
+        System.out.println("Elemento con più pagine: " + maxPagine.orElse(null));
+        System.out.printf("Media pagine: %.2f%n", mediaPagine);
     }
 
-    // Metodo per stampare tutto il catalogo
+    // Mi ritorna tutto il contenuto dell'archivio
     public void stampaTutto() {
-        catalogo.forEach(System.out::println);
+        if (catalogo.isEmpty()) {
+            System.out.println("Il catalogo è vuoto.");
+        } else {
+            catalogo.forEach(System.out::println);
+        }
     }
 }

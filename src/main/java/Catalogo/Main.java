@@ -9,10 +9,25 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Archivio archivio = new Archivio();
         Scanner scanner = new Scanner(System.in);
         boolean continua = true;
+
+        Libro libro1 = new Libro("123", "Fiori per Algernon", 1959, 304, "Racconto","Daniel Keyes");
+        Libro libro2 = new Libro("456", "Cado Malato", 2025, 3000, "horror","Ioan" );
+        Libro libro3 = new Libro("789", "Il ritorno di SASS", 2025, 20000,"Angoscia", "Luca");
+        Libro libro4 = new Libro("325", "Il ritorno di SASS", 2025, 20000,"Angoscia", "Luca");
+
+        archivio.aggiungiElemento(libro1);
+        archivio.aggiungiElemento(libro2);
+        archivio.aggiungiElemento(libro3);
+        archivio.aggiungiElemento(libro4);
+
+        System.out.println("\n--- ESEMPIO AUTOMATICO: AGGIUNTA LIBRI DUPLICATI ---");
+        archivio.stampaTutto();
+        System.out.println("-----------------------------------------------");
+
 
         while (continua) {
             System.out.println("\n--- MENU ARCHIVIO ---");
